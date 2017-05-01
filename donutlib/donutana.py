@@ -3,6 +3,7 @@ import scipy
 import time
 import pyfits
 import copy
+import json
 import statsmodels.api as sm
 import os.path
 from donutlib.PointMesh import PointMesh
@@ -176,7 +177,6 @@ class donutana(object):
             #    # fill gridDict
             #    self.gridDict[ccd] = [self.paramDict["nInterpGrid"],ylo,yhi,self.paramDict["nInterpGrid"],xlo,xhi]
 
-
         # also keep a dictionary to the meshes
         self.meshDict = {}
 
@@ -184,13 +184,16 @@ class donutana(object):
         if self.paramDict["zPointsFile"] != "":
             self.paramDict["z4PointsFile"] = self.paramDict["zPointsFile"]
 
+        self.debugString = ""
         # build the reference meshes
         for iZ in range(4,15+1):
             name = "z%dPointsFile" % (iZ)
             title = "Zernike %d" % (iZ)
             if self.paramDict[name] != "":
+                self.debugString += "\n%s"%name
                 # check that the file exists!
                 if os.path.isfile(self.paramDict[name]):
+                    self.debugString += " -- Has file"
                     theMesh = PointMesh(self.coordList,self.gridDict,pointsFile=self.paramDict[name],myMethod=self.paramDict["interpMethod"],methodVal=self.paramDict["methodVal"],title=title)
                     meshName = "z%dMesh" % iZ
                     self.meshDict[meshName] = theMesh
@@ -411,7 +414,6 @@ class donutana(object):
     def analyzeDonuts(self,donutData,extraCut="",doCull=False,cullCut=0.90):
         """ analyzeDonuts takes a list of dictionaries with donut information as input, containing the results of the donut fits
         """
-        
         dictOfMeshes = self.makeMeshes(donutData,extraCut=extraCut)
         donutDict = self.analyzeMeshes(dictOfMeshes,doCull=doCull,cullCut=cullCut)
         return donutDict
@@ -484,7 +486,7 @@ class donutana(object):
             
         # analyze this data and extract the hexapod coefficients
         donutDict = self.calcHexapod(dictOfResults)
-
+        
         if len(donutDict)==0:
             goodCalc = False
         else:

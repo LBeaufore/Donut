@@ -3,7 +3,6 @@
 # multiple "Coordinate" systems are possible, each with separate
 # interpolation grids
 #
-
 import numpy
 import scipy
 import pandas as pd
